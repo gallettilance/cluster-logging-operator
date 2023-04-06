@@ -23,3 +23,6 @@ sleep 2
 # substitute image names into the catalog deployment yaml and deploy it
 envsubst < olm_deploy/operatorregistry/registry-deployment.yaml | oc create -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} -f -
 oc wait -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} --timeout=120s --for=condition=available deployment/cluster-logging-operator-registry
+
+# create the catalog service
+oc create -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} -f olm_deploy/operatorregistry/service.yaml
