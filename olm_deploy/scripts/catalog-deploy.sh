@@ -4,7 +4,6 @@ source $(dirname "${BASH_SOURCE[0]}")/env.sh
 
 echo "Deploying operator catalog with bundle using images: "
 echo "cluster logging operator registry: ${IMAGE_CLUSTER_LOGGING_OPERATOR_REGISTRY}"
-echo "cluster logging operator: ${IMAGE_CLUSTER_LOGGING_OPERATOR}"
 echo "fluentd: ${IMAGE_LOGGING_FLUENTD}"
 echo "vector: ${IMAGE_LOGGING_VECTOR}"
 echo "log-file-metric-exporter: ${IMAGE_LOG_FILE_METRIC_EXPORTER}"
@@ -24,10 +23,3 @@ sleep 2
 # substitute image names into the catalog deployment yaml and deploy it
 envsubst < olm_deploy/operatorregistry/registry-deployment.yaml | oc create -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} -f -
 oc wait -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} --timeout=120s --for=condition=available deployment/cluster-logging-operator-registry
-
-# create the catalog service
-oc create -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} -f olm_deploy/operatorregistry/service.yaml
-
-# find the catalog service ip, substitute it into the catalogsource and create the catalog source
-export CLUSTER_IP=$(oc get -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} service cluster-logging-operator-registry -o jsonpath='{.spec.clusterIP}')
-envsubst < olm_deploy/operatorregistry/catalog-source.yaml | oc create -n ${CLUSTER_LOGGING_OPERATOR_NAMESPACE} -f -
