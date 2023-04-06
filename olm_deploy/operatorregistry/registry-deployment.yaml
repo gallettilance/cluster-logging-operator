@@ -52,7 +52,7 @@ spec:
 
       containers:
       - name: cluster-logging-operator-registry
-        image: quay.io/btofel/cco/origin-cluster-logging-operator:sts
+        image: quay.io/btofel/cco:origin-cluster-logging-operator
         imagePullPolicy: Always
         securityContext:
           allowPrivilegeEscalation: false
