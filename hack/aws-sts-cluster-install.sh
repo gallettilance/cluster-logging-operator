@@ -41,8 +41,8 @@ usage() {
 	  ${ME} [flags]
 
 	Flags:
-      --cleanup            Destroy existing cluster if necessary and exit
-  -d, --dir string         Install Assets directory (default "${CLUSTER_DIR}")
+        --cleanup            Destroy existing cluster if necessary and exit
+    -d, --dir string         Install Assets directory (default "${CLUSTER_DIR}")
 	  -c, --config             Create install config only
 	  -l, --logging-role       Create logging resources for cloudwatch sts
 	  -f, --logforwarding      Create an instance of logforwarding only (assuming secrets already setup)
@@ -258,6 +258,8 @@ spec:
     namespace: openshift-logging
   serviceAccountNames:
     - logcollector
+  cloudTokenString: arn:aws:iam::269733383066:oidc-provider/newstscluster-oidc.s3.us-east-1.amazonaws.com
+  cloudTokenPath: /var/cloud-token
 EOF
 
   echo -e "\nCreating role at AWS and output file for applying our secret"
@@ -270,10 +272,6 @@ EOF
   export KUBECONFIG=${CLUSTER_DIR}/auth/kubeconfig
   oc login -u kubeadmin -p $(cat ${CLUSTER_DIR}/auth/kubeadmin-password)
 
-  echo -e "\nCreating secret based on new role and OIDC bucket"
-  oc create ns openshift-logging
-  oc apply -f output/manifests/openshift-logging-${ROLE_NAME}-credentials.yaml
-
   echo
   exit 0
 }
@@ -281,9 +279,6 @@ EOF
 cluster_log_forwarder() {
   echo -e "\nReady to install logfowarding resources"
   confirm
-
-  echo -e "\nApplying secret for ${ROLE_NAME}"
-  oc apply -f output/manifests/openshift-logging-${ROLE_NAME}-credentials.yaml
 
   echo -e "\nCreating logforwarder instance resource file"
   cat <<-EOF > hack/cw-logforwarder-$(date +'%m%d').yaml
