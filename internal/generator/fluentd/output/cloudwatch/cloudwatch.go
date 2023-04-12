@@ -2,7 +2,6 @@ package cloudwatch
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	logging "github.com/openshift/cluster-logging-operator/apis/logging/v1"
@@ -176,11 +175,7 @@ func ParseRoleArn(secret *corev1.Secret) string {
 	}
 
 	if roleArnString != "" {
-		reg := regexp.MustCompile(`(arn:aws(.*)?:(iam|sts)::\d{12}:role\/\S+)\s?`)
-		roleArn := reg.FindStringSubmatch(roleArnString)
-		if roleArn != nil {
-			return roleArn[1] // the capturing group is index 1
-		}
+		return strings.ReplaceAll(strings.Split(strings.Split(roleArnString, "=")[2], "\n")[0], " ", "")
 	}
 	return ""
 }
